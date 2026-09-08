@@ -1,29 +1,25 @@
-import { z } from 'zod';
-
-export const ArchitectSpecSchema = z.object({
-  title: z.string(),
-  executive_summary: z.string(),
-  system_architecture: z.string().describe('High level design and data flow'),
-  mermaid_erd: z.string().describe('Mermaid.js diagram string representing data entities'),
-  api_endpoints: z.array(z.object({
-    method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']),
-    path: z.string(),
-    description: z.string(),
-    request_body: z.string().optional(),
-    response_sample: z.string()
-  })),
-  edge_cases: z.array(z.object({
-    scenario: z.string(),
-    risk: z.string(),
-    mitigation_strategy: z.string()
-  })),
-  sla_requirements: z.object({
-    latency_p95_ms: z.number(),
-    availability_target: z.string()
-  })
-});
-
-export type ArchitectSpec = z.infer<typeof ArchitectSpecSchema>;
+export interface ArchitectSpec {
+  title: string;
+  executive_summary: string;
+  system_architecture: string;
+  mermaid_erd: string;
+  api_endpoints: Array<{
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    path: string;
+    description: string;
+    request_body?: string;
+    response_sample: string;
+  }>;
+  edge_cases: Array<{
+    scenario: string;
+    risk: string;
+    mitigation_strategy: string;
+  }>;
+  sla_requirements: {
+    latency_p95_ms: number;
+    availability_target: string;
+  };
+}
 
 export const ARCHITECT_AGENT_SYSTEM_PROMPT = `
 You are the Lead Systems Architect Agent for SpecForge.

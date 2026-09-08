@@ -1,0 +1,118 @@
+{
+  "projects": [
+    {
+      "id": "proj-seed-01",
+      "name": "Automated Billing & AR Reconciliation",
+      "description": "Customer discovery for B2B payment reconciliation engine and webhook syncing.",
+      "linear_team_id": "ENG",
+      "github_repo": "1997agarwal/SpecForge",
+      "created_at": "2026-09-08T05:47:27.578Z"
+    }
+  ],
+  "discovery_calls": [
+    {
+      "id": "call-seed-01",
+      "project_id": "proj-seed-01",
+      "title": "Customer Interview #04 — Stripe Reconciliation Bottlenecks",
+      "interviewee_name": "Marcus Vance",
+      "interviewee_role": "Head of Finance @ ScalePay",
+      "raw_transcript": "[00:15] Sarah (Interviewer): Thanks for jumping on, Marcus. Can you walk me through what happens when your end-of-month reconciliation fails?\n[00:32] Marcus (Head of Finance): Honestly, it is a nightmare. Every single Monday, we waste 2 hours manually downloading CSVs from Stripe and matching them against NetSuite because the webhooks time out silently.\n[01:10] Sarah (Interviewer): What do you do when a discrepancy pops up?\n[01:25] Marcus (Head of Finance): We have to ping three different engineers on Slack. Our customers get duplicate overdue notices, which ruins our relationship. If a system could auto-detect failed syncs and alert us before invoices go out, I would pay $500 a month tomorrow without blinking.\n[02:40] Marcus (Head of Finance): Also, our compliance team requires every manual adjustment to have an audit trail with user email and timestamp. Currently people just edit Google Sheets.",
+      "duration_seconds": 240,
+      "created_at": "2026-09-08T05:47:27.582Z"
+    }
+  ],
+  "insights": [
+    {
+      "id": "ins-01",
+      "call_id": "call-seed-01",
+      "category": "pain_point",
+      "title": "Silent Stripe Webhook Timeouts",
+      "quote": "Every single Monday, we waste 2 hours manually downloading CSVs from Stripe and matching them against NetSuite because the webhooks time out silently.",
+      "timestamp_start": "00:32",
+      "timestamp_end": "00:54",
+      "urgency_score": 5,
+      "jtbd": "When Stripe webhooks fail, I want automatic anomaly alerts and retry queues, so I can stop spending 2 hours manually cross-checking CSVs.",
+      "created_at": "2026-09-08T05:47:27.582Z"
+    },
+    {
+      "id": "ins-02",
+      "call_id": "call-seed-01",
+      "category": "pain_point",
+      "title": "Duplicate Overdue Notices to Customers",
+      "quote": "Our customers get duplicate overdue notices, which ruins our relationship.",
+      "timestamp_start": "01:25",
+      "timestamp_end": "01:45",
+      "urgency_score": 5,
+      "jtbd": "When invoices are in reconciliation dispute, I want automated dunning pauses, so I can protect customer goodwill.",
+      "created_at": "2026-09-08T05:47:27.582Z"
+    },
+    {
+      "id": "ins-03",
+      "call_id": "call-seed-01",
+      "category": "feature_request",
+      "title": "Immutable Audit Trail for Adjustments",
+      "quote": "Our compliance team requires every manual adjustment to have an audit trail with user email and timestamp.",
+      "timestamp_start": "02:40",
+      "timestamp_end": "03:05",
+      "urgency_score": 4,
+      "jtbd": "When finance staff modify an invoice status, I want an immutable audit log recorded, so I can pass compliance audits.",
+      "created_at": "2026-09-08T05:47:27.583Z"
+    }
+  ],
+  "prd_documents": [
+    {
+      "id": "prd-seed-01",
+      "project_id": "proj-seed-01",
+      "title": "Billing Reconciliation & Resilient Webhook Ingestion Engine",
+      "version": 1,
+      "markdown_content": "# PRD: Automated Billing Reconciliation & Resilient Webhook Ingestion\n\n## 1. Executive Summary\nEliminate manual CSV reconciliations and prevent embarrassing duplicate dunning notices by establishing an idempotent webhook buffer and automated reconciliation queue.\n\n## 2. Technical Architecture & Data Flow\n```mermaid\nsequenceDiagram\n    participant Stripe as Stripe Webhook\n    participant Ingest as SpecForge Event Buffer\n    participant Queue as Redis / SQLite Queue\n    participant Recon as Reconciliation Worker\n    participant Ledger as NetSuite Ledger\n\n    Stripe->>Ingest: POST /v1/webhooks/stripe\n    Ingest-->>Stripe: 200 OK (Signed & Stored)\n    Ingest->>Queue: Enqueue Event ID\n    Queue->>Recon: Consume Event\n    Recon->>Ledger: Idempotent Ledger Entry\n```\n\n## 3. Relational Schema & Entity Contracts\n- `webhook_events`: id, source, payload, signature, status, retry_count, created_at\n- `reconciliation_logs`: id, event_id, invoice_id, matched_amount, discrepancy, audit_trail_json\n\n## 4. Operational SLAs & Edge Cases\n- **Webhook Ingestion p95 Latency:** < 150ms\n- **Duplicate Prevention:** Enforce unique constraint on `stripe_event_id`\n- **Dunning Freeze:** Invoices with reconciliation discrepancy auto-halt automated dunning emails for 48h.",
+      "schema_mermaid": "erDiagram WEBHOOK_EVENT ||--o{ RECONCILIATION_LOG : processes",
+      "status": "approved",
+      "created_at": "2026-09-08T05:47:27.583Z"
+    }
+  ],
+  "issues": [
+    {
+      "id": "iss-01",
+      "prd_id": "prd-seed-01",
+      "title": "Implement Idempotent Webhook Buffer & Retry Queue",
+      "description": "Store raw Stripe payloads immediately to disk before processing to prevent silent loss.",
+      "type": "infra",
+      "priority": "urgent",
+      "story_points": 5,
+      "gherkin_criteria": "Given a Stripe charge.succeeded webhook\nWhen payload is delivered\nThen record in webhook_events table with unique constraint and return HTTP 200 within 200ms",
+      "citation_quote": "Every single Monday, we waste 2 hours manually downloading CSVs because the webhooks time out silently.",
+      "citation_timestamp": "00:32",
+      "linear_issue_url": "https://linear.app/eng/issue/SPEC-101",
+      "created_at": "2026-09-08T05:47:27.583Z"
+    },
+    {
+      "id": "iss-02",
+      "prd_id": "prd-seed-01",
+      "title": "Automated Dunning Freeze on Unreconciled Invoices",
+      "description": "Pause collection sequences whenever an incoming payment is under dispute or pending sync.",
+      "type": "feature",
+      "priority": "high",
+      "story_points": 3,
+      "gherkin_criteria": "Given an invoice with pending reconciliation\nWhen automated dunning sequence triggers\nThen suppress email and flag account as \"Reconciliation Pending\"",
+      "citation_quote": "Our customers get duplicate overdue notices, which ruins our relationship.",
+      "citation_timestamp": "01:25",
+      "linear_issue_url": "https://linear.app/eng/issue/SPEC-102",
+      "created_at": "2026-09-08T05:47:27.583Z"
+    },
+    {
+      "id": "iss-03",
+      "prd_id": "prd-seed-01",
+      "title": "Immutable Audit Log for Ledger Adjustments",
+      "description": "Record user ID, timestamp, prior state, and justification for every manual override.",
+      "type": "feature",
+      "priority": "medium",
+      "story_points": 2,
+      "gherkin_criteria": "Given a finance admin overriding an invoice status\nWhen changes are saved\nThen append record to audit_logs table and require change reason comment",
+      "citation_quote": "Our compliance team requires every manual adjustment to have an audit trail.",
+      "citation_timestamp": "02:40",
+      "linear_issue_url": "https://linear.app/eng/issue/SPEC-103",
+      "created_at": "2026-09-08T05:47:27.583Z"
+    }
+  ]
+}

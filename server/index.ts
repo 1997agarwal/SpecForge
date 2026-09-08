@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import { db } from './db/database.ts';
 import { parseTranscript } from './services/transcription.ts';
@@ -193,7 +193,7 @@ sequenceDiagram
 seedInitialData();
 
 // REST Routes
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/api/health', (req: any, res: any) => {
   res.json({
     status: 'healthy',
     service: 'SpecForge Multi-Agent Engine',
@@ -202,12 +202,12 @@ app.get('/api/health', (req: Request, res: Response) => {
   });
 });
 
-app.get('/api/projects', (req: Request, res: Response) => {
+app.get('/api/projects', (req: any, res: any) => {
   const projects = db.prepare('SELECT * FROM projects ORDER BY created_at DESC').all();
   res.json({ projects });
 });
 
-app.get('/api/calls/:id', (req: Request, res: Response) => {
+app.get('/api/calls/:id', (req: any, res: any) => {
   const call = db.prepare('SELECT * FROM discovery_calls WHERE id = ?').get(req.params.id);
   if (!call) {
     return res.status(404).json({ error: 'Call not found' });
@@ -219,7 +219,7 @@ app.get('/api/calls/:id', (req: Request, res: Response) => {
   res.json({ call, turns, insights });
 });
 
-app.get('/api/prd/:projectId', (req: Request, res: Response) => {
+app.get('/api/prd/:projectId', (req: any, res: any) => {
   const prd = db.prepare('SELECT * FROM prd_documents WHERE project_id = ? ORDER BY version DESC LIMIT 1').get(req.params.projectId);
   if (!prd) {
     return res.status(404).json({ error: 'PRD not found' });
@@ -229,7 +229,7 @@ app.get('/api/prd/:projectId', (req: Request, res: Response) => {
   res.json({ prd, issues });
 });
 
-app.post('/api/sync/linear', async (req: Request, res: Response) => {
+app.post('/api/sync/linear', async (req: any, res: any) => {
   try {
     const { apiKey, teamId, epicTitle, issues } = req.body;
     const result = await syncToLinear({ apiKey, teamId, epicTitle, issues });

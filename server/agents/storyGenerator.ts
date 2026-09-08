@@ -1,23 +1,19 @@
-import { z } from 'zod';
+export interface StoryItem {
+  title: string;
+  description: string;
+  type: 'feature' | 'infra' | 'bug';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  story_points: number;
+  gherkin_criteria: string;
+  citation_quote: string;
+  citation_timestamp: string;
+}
 
-export const StoryItemSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  type: z.enum(['feature', 'infra', 'bug']),
-  priority: z.enum(['urgent', 'high', 'medium', 'low']),
-  story_points: z.number().int().min(1).max(13),
-  gherkin_criteria: z.string().describe('Given [context] When [event] Then [outcome]'),
-  citation_quote: z.string(),
-  citation_timestamp: z.string()
-});
-
-export const StoryGeneratorResponseSchema = z.object({
-  epic_title: z.string(),
-  epic_description: z.string(),
-  stories: z.array(StoryItemSchema)
-});
-
-export type StoryGeneratorResponse = z.infer<typeof StoryGeneratorResponseSchema>;
+export interface StoryGeneratorResponse {
+  epic_title: string;
+  epic_description: string;
+  stories: StoryItem[];
+}
 
 export const STORY_GENERATOR_SYSTEM_PROMPT = `
 You are the Agile Engineering Story & Linear Ticket Generator for SpecForge.
