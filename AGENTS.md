@@ -43,3 +43,4 @@ All updates to this repository must maintain the 4-file parity:
 2. **Zero-Config Database:** Always keep SQLite (`better-sqlite3`) as the default local data store so anyone cloning the repo can run it without spinning up external infrastructure.
 3. **Dual Surface Support:** Every core capability must be accessible via both the **Web Studio** (`npm run dev`) and the **Headless CLI** (`npx specforge`).
 4. **Non-Destructive Migrations:** Never drop or wipe user discovery call data during updates.
+5. **Clean, Intuitive & Modern 2026 Light Theme:** All user interfaces must use a clean, modern light theme (`#f8fafc` canvas, `#ffffff` elevated cards, `#e2e8f0` subtle borders, high-contrast `#0f172a` typography, and focused accent badges). Never dump crowded, dark, multi-column technical data onto one screen; prioritize intuitive step-by-step flows that anyone can understand in 3 seconds.
