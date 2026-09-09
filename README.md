@@ -10,6 +10,7 @@
   <a href="#linear-sync"><img src="https://img.shields.io/badge/Linear-Sync_Ready-5E6AD2.svg?logo=linear&logoColor=white" alt="Linear Sync"></a>
   <a href="#github-issues"><img src="https://img.shields.io/badge/GitHub_Issues-Supported-181717.svg?logo=github&logoColor=white" alt="GitHub Issues"></a>
   <a href="#typescript"><img src="https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="SPECIFICATION.md"><img src="https://img.shields.io/badge/PRD_Spec-Complete_v0.1-purple.svg" alt="PRD Spec"></a>
 </p>
 
 ---
