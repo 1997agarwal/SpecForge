@@ -17,6 +17,8 @@ Living execution status of SpecForge development milestones.
 - [ ] Deepgram Nova-2 cloud transcription provider
 
 ## Phase 3: Studio UX & Integrations (Upcoming)
+- [x] 1-Click Export Actions in PRD Studio (Download PRD `.md` with Mermaid diagrams & Copy Jira/Notion User Stories)
+- [x] 3-Scenario Discovery Switcher in Navbar (B2B Billing, AI Search Latency & Rate Limits, Mobile Checkout Drop-off)
 - [ ] Interactive waveform player with clickable citation markers
 - [ ] Live Mermaid.js diagram viewer in PRD Studio
 - [ ] Bi-directional Linear GraphQL API push

@@ -23,6 +23,8 @@ Product Managers and founders spend **8–12 hours per week** listening to user 
 2. **Master Technical PRD** (Architecture, Data Schema, Edge Cases, Security)
 3. **Executable User Stories** (Gherkin `Given-When-Then` format with story points)
 4. **1-Click Sync to Linear & GitHub Issues** with citation backlinks directly to the user's voice
+5. **1-Click Export Actions in PRD Studio** (Download PRD `.md` with Mermaid diagrams & Copy Jira/Notion User Stories)
+6. **3-Scenario Discovery Switcher** (Instant testing of B2B Billing, AI Search Latency & Rate Limits, and Mobile Checkout Drop-off)
 
 ---
 

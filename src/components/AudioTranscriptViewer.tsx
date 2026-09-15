@@ -1,18 +1,30 @@
 import React, { useState } from 'react';
-import { Turn, Insight } from '../data/mockDiscovery';
+import { Turn, Insight, CustomerProfile } from '../data/mockDiscovery';
 import { Clock, Play, Pause, Sparkles, Quote, User, AlertCircle, ArrowRight } from 'lucide-react';
 
 interface Props {
   turns: Turn[];
   insights: Insight[];
+  customer?: CustomerProfile;
   activeTimestamp: string | null;
   onSelectTimestamp: (ts: string) => void;
   onProceedToPRD?: () => void;
 }
 
+const defaultCustomer: CustomerProfile = {
+  name: 'Marcus Vance',
+  initials: 'MV',
+  role: 'Head of Finance',
+  company: 'ScalePay',
+  urgency: 'High Pain Urgency',
+  duration: '04:12 mins',
+  summary: 'Interview #04 • Recorded duration: 04:12 mins • Primary challenge: End-of-month Stripe reconciliation timeouts'
+};
+
 export const AudioTranscriptViewer: React.FC<Props> = ({
   turns,
   insights,
+  customer = defaultCustomer,
   activeTimestamp,
   onSelectTimestamp,
   onProceedToPRD
@@ -25,20 +37,20 @@ export const AudioTranscriptViewer: React.FC<Props> = ({
       <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg shrink-0">
-            MV
+            {customer.initials}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900">Marcus Vance</h2>
+              <h2 className="text-base font-bold text-slate-900">{customer.name}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
-                Head of Finance @ ScalePay
+                {customer.role} @ {customer.company}
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold">
-                High Pain Urgency
+                {customer.urgency}
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Interview #04 • Recorded duration: 04:12 mins • Primary challenge: End-of-month Stripe reconciliation timeouts
+              {customer.summary}
             </p>
           </div>
         </div>

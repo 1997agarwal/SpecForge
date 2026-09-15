@@ -4,11 +4,16 @@ import { CheckSquare, ExternalLink, Zap, Quote, ChevronDown, ChevronUp, Clock, T
 
 interface Props {
   issues: Issue[];
+  sprintTitle?: string;
   onOpenSyncModal: () => void;
 }
 
-export const IssueManager: React.FC<Props> = ({ issues, onOpenSyncModal }) => {
-  const [expandedId, setExpandedId] = useState<string | null>('iss-01');
+export const IssueManager: React.FC<Props> = ({
+  issues,
+  sprintTitle = 'Sprint Backlog: Billing Reconciliation & Anomaly Engine',
+  onOpenSyncModal
+}) => {
+  const [expandedId, setExpandedId] = useState<string | null>(issues[0]?.id || null);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -26,11 +31,11 @@ export const IssueManager: React.FC<Props> = ({ issues, onOpenSyncModal }) => {
               Linear Ready
             </span>
             <span className="text-xs text-slate-500 font-medium">
-              3 Atomic User Stories • {totalPoints} Fibonacci Points
+              {issues.length} Atomic User Stories • {totalPoints} Fibonacci Points
             </span>
           </div>
           <h2 className="text-base font-bold text-slate-900">
-            Sprint Backlog: Billing Reconciliation & Anomaly Engine
+            {sprintTitle}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Formatted in Gherkin BDD with acceptance criteria and verbatim customer quote backlinks.

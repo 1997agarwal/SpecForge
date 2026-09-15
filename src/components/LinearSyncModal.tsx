@@ -6,9 +6,15 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   issues: Issue[];
+  epicTitle?: string;
 }
 
-export const LinearSyncModal: React.FC<Props> = ({ isOpen, onClose, issues }) => {
+export const LinearSyncModal: React.FC<Props> = ({
+  isOpen,
+  onClose,
+  issues,
+  epicTitle = 'Billing Reconciliation & Resilient Webhook Ingestion'
+}) => {
   const [apiKey, setApiKey] = useState('demo-token');
   const [teamId, setTeamId] = useState('ENG');
   const [syncing, setSyncing] = useState(false);
@@ -25,7 +31,7 @@ export const LinearSyncModal: React.FC<Props> = ({ isOpen, onClose, issues }) =>
         body: JSON.stringify({
           apiKey,
           teamId,
-          epicTitle: 'Automated Billing & AR Reconciliation',
+          epicTitle,
           issues
         })
       });
@@ -81,7 +87,7 @@ export const LinearSyncModal: React.FC<Props> = ({ isOpen, onClose, issues }) =>
                 <span>Successfully Synced {result.syncedCount} Issues to Linear!</span>
               </div>
               <p className="text-slate-600 leading-relaxed">
-                Created Epic <strong className="text-slate-900">[SpecForge] Billing Reconciliation</strong> with {result.syncedCount} child engineering stories, story points, and timestamped customer citations.
+                Created Epic <strong className="text-slate-900">[SpecForge] {epicTitle}</strong> with {result.syncedCount} child engineering stories, story points, and timestamped customer citations.
               </p>
               <div className="pt-2">
                 <a
@@ -123,8 +129,8 @@ export const LinearSyncModal: React.FC<Props> = ({ isOpen, onClose, issues }) =>
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 space-y-1.5">
                 <span className="font-bold text-slate-900 block text-xs">What will be created:</span>
                 <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600">
-                  <li><strong>1 Epic:</strong> Billing Reconciliation & Resilient Webhook Ingestion</li>
-                  <li><strong>3 Engineering Stories:</strong> Formatted in Gherkin BDD format</li>
+                  <li><strong>1 Epic:</strong> {epicTitle}</li>
+                  <li><strong>{issues.length} Engineering Stories:</strong> Formatted in Gherkin BDD format</li>
                   <li><strong>Citation Traceability:</strong> Direct backlinks to customer audio timestamps</li>
                 </ul>
               </div>

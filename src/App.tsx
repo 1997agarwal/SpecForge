@@ -4,22 +4,25 @@ import { PRDViewer } from './components/PRDViewer';
 import { IssueManager } from './components/IssueManager';
 import { LinearSyncModal } from './components/LinearSyncModal';
 import { UploadModal } from './components/UploadModal';
-import { initialTurns, initialInsights, initialPrd, initialIssues } from './data/mockDiscovery';
-import { Zap, Github, Sparkles, BookOpen, Layers, CheckSquare, Upload, ArrowRight, Mic, Columns, Maximize2 } from 'lucide-react';
+import { scenarios } from './data/mockDiscovery';
+import { Zap, Github, Sparkles, BookOpen, Layers, CheckSquare, Upload, ArrowRight, Mic, Columns, Maximize2, Smartphone } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Navigation tabs: 'evidence' (Stage 1), 'prd' (Stage 2), 'issues' (Stage 3)
   const [activeStage, setActiveStage] = useState<'evidence' | 'prd' | 'issues'>('evidence');
   const [viewMode, setViewMode] = useState<'stepper' | 'split'>('stepper');
+  const [selectedScenarioId, setSelectedScenarioId] = useState<'billing' | 'ai-search' | 'checkout'>('billing');
   const [activeTimestamp, setActiveTimestamp] = useState<string | null>(null);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
+  const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
       {/* Top Navigation Bar */}
-      <header className="h-16 bg-white border-b border-slate-200/80 px-6 sticky top-0 z-30 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-4">
+      <header className="min-h-16 bg-white border-b border-slate-200/80 px-6 py-2 sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm shadow-indigo-600/30">
               <Zap className="w-4 h-4 fill-current" />
@@ -34,15 +37,48 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+          <div className="h-4 w-px bg-slate-200 hidden md:block" />
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
-            <span className="font-semibold text-slate-700">Call:</span>
-            <span>ScalePay Interview #04 — Stripe Reconciliation Bottlenecks</span>
+          {/* 3-Scenario Discovery Switcher */}
+          <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 pl-2 pr-1 hidden sm:inline">
+              Scenario:
+            </span>
+            {scenarios.map((sc) => {
+              const isSelected = sc.id === activeScenario.id;
+              return (
+                <button
+                  key={sc.id}
+                  onClick={() => {
+                    setSelectedScenarioId(sc.id);
+                    setActiveTimestamp(null);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition ${
+                    isSelected
+                      ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/90'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  }`}
+                  title={`${sc.name} (${sc.badge})`}
+                >
+                  {sc.id === 'billing' && <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />}
+                  {sc.id === 'ai-search' && <Sparkles className="w-3.5 h-3.5 text-indigo-600" />}
+                  {sc.id === 'checkout' && <Smartphone className="w-3.5 h-3.5 text-emerald-600" />}
+                  <span>{sc.shortLabel}</span>
+                  <span className="hidden lg:inline-block px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500">
+                    {sc.badge.split('/')[0].trim()}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="hidden 2xl:flex items-center gap-2 text-xs text-slate-500">
+            <span className="font-semibold text-slate-700">Active Call:</span>
+            <span className="truncate max-w-sm">{activeScenario.callTitle}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsUploadModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
@@ -78,7 +114,7 @@ export const App: React.FC = () => {
           <div className="max-w-2xl space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-indigo-100 text-indigo-700 text-xs font-semibold shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Autonomous Discovery-to-Spec Engine</span>
+              <span>Autonomous Discovery-to-Spec Engine • Scenario: {activeScenario.name}</span>
             </div>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
               From 45-Minute User Calls to Executable Specs in 60 Seconds.
@@ -139,7 +175,7 @@ export const App: React.FC = () => {
                 <span>Customer Voice & Evidence</span>
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                3 Key pain signals extracted with exact timestamps.
+                {activeScenario.insights.length} Key pain signals extracted with exact timestamps.
               </p>
             </button>
 
@@ -191,7 +227,7 @@ export const App: React.FC = () => {
                 <span>Linear Engineering Stories</span>
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                3 Gherkin BDD tickets with citation backlinks.
+                {activeScenario.issues.length} Gherkin BDD tickets with citation backlinks.
               </p>
             </button>
           </div>
@@ -202,8 +238,9 @@ export const App: React.FC = () => {
           <div>
             {activeStage === 'evidence' && (
               <AudioTranscriptViewer
-                turns={initialTurns}
-                insights={initialInsights}
+                turns={activeScenario.turns}
+                insights={activeScenario.insights}
+                customer={activeScenario.customer}
                 activeTimestamp={activeTimestamp}
                 onSelectTimestamp={(ts) => setActiveTimestamp(ts)}
                 onProceedToPRD={() => setActiveStage('prd')}
@@ -212,14 +249,17 @@ export const App: React.FC = () => {
 
             {activeStage === 'prd' && (
               <PRDViewer
-                content={initialPrd}
+                content={activeScenario.prd.content}
+                prd={activeScenario.prd}
+                issues={activeScenario.issues}
                 onProceedToIssues={() => setActiveStage('issues')}
               />
             )}
 
             {activeStage === 'issues' && (
               <IssueManager
-                issues={initialIssues}
+                issues={activeScenario.issues}
+                sprintTitle={activeScenario.sprintTitle}
                 onOpenSyncModal={() => setIsSyncModalOpen(true)}
               />
             )}
@@ -228,18 +268,24 @@ export const App: React.FC = () => {
           /* Split View Mode (Side-by-side) */
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             <AudioTranscriptViewer
-              turns={initialTurns}
-              insights={initialInsights}
+              turns={activeScenario.turns}
+              insights={activeScenario.insights}
+              customer={activeScenario.customer}
               activeTimestamp={activeTimestamp}
               onSelectTimestamp={(ts) => setActiveTimestamp(ts)}
             />
 
             <div className="space-y-6">
               <IssueManager
-                issues={initialIssues}
+                issues={activeScenario.issues}
+                sprintTitle={activeScenario.sprintTitle}
                 onOpenSyncModal={() => setIsSyncModalOpen(true)}
               />
-              <PRDViewer content={initialPrd} />
+              <PRDViewer
+                content={activeScenario.prd.content}
+                prd={activeScenario.prd}
+                issues={activeScenario.issues}
+              />
             </div>
           </div>
         )}
@@ -264,7 +310,8 @@ export const App: React.FC = () => {
       <LinearSyncModal
         isOpen={isSyncModalOpen}
         onClose={() => setIsSyncModalOpen(false)}
-        issues={initialIssues}
+        issues={activeScenario.issues}
+        epicTitle={activeScenario.prd.title}
       />
 
       <UploadModal

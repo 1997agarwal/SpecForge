@@ -24,6 +24,8 @@ Generic LLMs produce vague summaries (*"The customer wants speed"*). **SpecForge
 2. **Master Technical PRD** (Data Models, API Contracts, Edge Cases, SLAs)
 3. **Executable User Stories** (Gherkin `Given-When-Then` format with story points)
 4. **1-Click Sync to Linear & GitHub Issues** with citation backlinks directly to the user's voice
+5. **1-Click Export Actions in PRD Studio** (Download PRD `.md` with Mermaid diagrams & Copy Jira/Notion User Stories)
+6. **3-Scenario Discovery Switcher** (Instant testing of B2B Billing, AI Search Latency & Rate Limits, and Mobile Checkout Drop-off)
 
 ---
 
@@ -54,6 +56,33 @@ Generic LLMs produce vague summaries (*"The customer wants speed"*). **SpecForge
                                             ▼
                      [ 1-Click Sync: Linear API / GitHub Issues ]
 ```
+
+---
+
+## 🎯 Pre-Loaded Discovery Scenarios
+
+SpecForge comes pre-loaded with **3 realistic, production-grade discovery interviews** accessible via the 1-click **Scenario Switcher** in the top navigation bar:
+
+| Scenario | Domain & Badge | Customer Profile | Pain Point & Architecture Solution |
+|---|---|---|---|
+| **B2B Billing Reconciliation** | `Fintech / B2B` | **Marcus Vance**<br>*Head of Finance @ ScalePay* | Webhook timeouts silently failing during billing runs, causing 2h manual CSV cross-checks and duplicate dunning notices. Solved via idempotent webhook buffer, Redis worker queue, and automated dunning pause. |
+| **AI Search Latency & Rate Limits** | `AI Infrastructure` | **Elena Rostova**<br>*VP of Engineering @ QueryCraft* | RAG query latency spiking to 4.8s p95 during peak hours due to upstream LLM 429 rate limit spikes. Solved via L1 Redis semantic vector cache, multi-model circuit breaker, and instant BM25 lexical fallback. |
+| **Mobile Checkout Drop-off** | `Mobile E-Commerce` | **Priya Sharma**<br>*Head of Product @ CartSwift* | 42% iOS mobile cart drop-off from 7-field address forms and Apple Pay token expiry during synchronous tax recalculation. Solved via 1-tap express Apple/Google Pay sheet and sub-200ms async tax engine. |
+
+Switching scenarios immediately updates customer voice evidence, verbatim interview turns, JTBD matrices, technical architecture PRDs, and Gherkin engineering stories.
+
+---
+
+## 📤 1-Click Export Actions in PRD Studio
+
+SpecForge makes it effortless to transition from discovery synthesis to engineering execution with 1-click export actions in the PRD Studio:
+
+1. **Download PRD (.md)**:
+   - Exports the complete Master Technical PRD with all functional requirements, data schemas, operational SLAs, and embedded **Mermaid.js sequence diagrams**.
+   - Generates a clean markdown file (e.g. `specforge-prd-billing-reconciliation.md`, `specforge-prd-ai-search-resilience.md`, `specforge-prd-mobile-checkout.md`) for version-controlled documentation in GitHub/GitLab.
+2. **Copy Jira User Stories**:
+   - Formats all engineering issues into clean, universal Markdown tailored for direct copy-pasting into **Jira Cloud / Jira Server** and **Notion**.
+   - Preserves issue keys (`[SPEC-101]`), Fibonacci story points, priorities, formatted **Gherkin BDD acceptance criteria** (`Scenario`, `Given`, `When`, `Then`), and customer evidence quotes with timestamp backlinks.
 
 ---
 
