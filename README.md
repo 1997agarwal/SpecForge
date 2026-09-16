@@ -5,6 +5,7 @@
 </p>
 
 <p align="center">
+  <a href="https://1997agarwal.github.io/SpecForge"><img src="https://img.shields.io/badge/Live_Demo-Interactive_Studio-4F46E5.svg?logo=googlechrome&logoColor=white" alt="Live Demo"></a>
   <a href="#license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License MIT"></a>
   <a href="#architecture"><img src="https://img.shields.io/badge/Architecture-3--Stage_Agentic-orange.svg" alt="3-Stage Agentic"></a>
   <a href="#linear-sync"><img src="https://img.shields.io/badge/Linear-Sync_Ready-5E6AD2.svg?logo=linear&logoColor=white" alt="Linear Sync"></a>
@@ -87,8 +88,11 @@ SpecForge makes it effortless to transition from discovery synthesis to engineer
 ---
 
 ## 🚀 Quick Start
+ 
+### 🌐 Try the Live Studio (Zero-Install)
+Open the deployed static studio directly in your browser: **[https://1997agarwal.github.io/SpecForge](https://1997agarwal.github.io/SpecForge)**
 
-### 1. Run the Web Studio
+### 1. Run the Web Studio Locally
 ```bash
 # Clone the repository
 git clone https://github.com/1997agarwal/SpecForge.git
