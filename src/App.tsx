@@ -11,12 +11,13 @@ export const App: React.FC = () => {
   // Navigation tabs: 'evidence' (Stage 1), 'prd' (Stage 2), 'issues' (Stage 3)
   const [activeStage, setActiveStage] = useState<'evidence' | 'prd' | 'issues'>('evidence');
   const [viewMode, setViewMode] = useState<'stepper' | 'split'>('stepper');
-  const [selectedScenarioId, setSelectedScenarioId] = useState<'billing' | 'ai-search' | 'checkout'>('billing');
+  const [scenariosList, setScenariosList] = useState(scenarios);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string>('billing');
   const [activeTimestamp, setActiveTimestamp] = useState<string | null>(null);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
+  const activeScenario = scenariosList.find((s) => s.id === selectedScenarioId) || scenariosList[0];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
@@ -39,12 +40,12 @@ export const App: React.FC = () => {
 
           <div className="h-4 w-px bg-slate-200 hidden md:block" />
 
-          {/* 3-Scenario Discovery Switcher */}
-          <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
+          {/* Scenario Discovery Switcher */}
+          <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs flex-wrap">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 pl-2 pr-1 hidden sm:inline">
               Scenario:
             </span>
-            {scenarios.map((sc) => {
+            {scenariosList.map((sc) => {
               const isSelected = sc.id === activeScenario.id;
               return (
                 <button
@@ -63,6 +64,7 @@ export const App: React.FC = () => {
                   {sc.id === 'billing' && <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />}
                   {sc.id === 'ai-search' && <Sparkles className="w-3.5 h-3.5 text-indigo-600" />}
                   {sc.id === 'checkout' && <Smartphone className="w-3.5 h-3.5 text-emerald-600" />}
+                  {sc.id.startsWith('custom-') && <Upload className="w-3.5 h-3.5 text-purple-600" />}
                   <span>{sc.shortLabel}</span>
                   <span className="hidden lg:inline-block px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500">
                     {sc.badge.split('/')[0].trim()}
@@ -317,8 +319,10 @@ export const App: React.FC = () => {
       <UploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
-        onProcessSuccess={() => {
-          setActiveStage('issues');
+        onProcessSuccess={(newScenario) => {
+          setScenariosList((prev) => [newScenario, ...prev]);
+          setSelectedScenarioId(newScenario.id);
+          setActiveStage('prd');
         }}
       />
     </div>

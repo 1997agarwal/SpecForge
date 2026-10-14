@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Issue } from '../data/mockDiscovery';
-import { CheckSquare, ExternalLink, Zap, Quote, ChevronDown, ChevronUp, Clock, Tag } from 'lucide-react';
+import { CheckSquare, ExternalLink, Zap, Quote, ChevronDown, ChevronUp, Clock, Tag, Github, Check } from 'lucide-react';
 
 interface Props {
   issues: Issue[];
@@ -8,15 +8,55 @@ interface Props {
   onOpenSyncModal: () => void;
 }
 
+export const formatGitHubIssues = (
+  stories: Issue[],
+  epicTitle: string = 'SpecForge Generated Backlog'
+): string => {
+  return stories.map((story, idx) => {
+    return [
+      `### [Issue #${idx + 1}] ${story.title}`,
+      ``,
+      `- **Type:** \`${story.type}\` | **Priority:** \`${story.priority}\` | **Story Points:** \`${story.story_points}\``,
+      `- **Target Epic:** ${epicTitle}`,
+      ``,
+      `#### 📋 Overview & Problem Context`,
+      story.description,
+      ``,
+      `#### 🧪 Acceptance Criteria (Gherkin BDD)`,
+      `\`\`\`gherkin`,
+      story.gherkin_criteria.trim(),
+      `\`\`\``,
+      ``,
+      `#### 💬 Customer Citation Backlink`,
+      `> **[${story.citation_timestamp}]**: "${story.citation_quote}"`,
+      ``,
+      `#### ✅ Definition of Done`,
+      `- [ ] Implementation matching Gherkin scenarios`,
+      `- [ ] Unit and integration tests passing`,
+      `- [ ] Deployed and validated in staging`,
+      ``,
+      `---`
+    ].join('\n');
+  }).join('\n\n');
+};
+
 export const IssueManager: React.FC<Props> = ({
   issues,
   sprintTitle = 'Sprint Backlog: Billing Reconciliation & Anomaly Engine',
   onOpenSyncModal
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(issues[0]?.id || null);
+  const [copiedGitHub, setCopiedGitHub] = useState(false);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleCopyGitHubIssues = () => {
+    const markdown = formatGitHubIssues(issues, sprintTitle);
+    navigator.clipboard.writeText(markdown);
+    setCopiedGitHub(true);
+    setTimeout(() => setCopiedGitHub(false), 2000);
   };
 
   const totalPoints = issues.reduce((acc, curr) => acc + curr.story_points, 0);
@@ -28,7 +68,7 @@ export const IssueManager: React.FC<Props> = ({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold">
-              Linear Ready
+              Linear & GitHub Ready
             </span>
             <span className="text-xs text-slate-500 font-medium">
               {issues.length} Atomic User Stories • {totalPoints} Fibonacci Points
@@ -42,13 +82,33 @@ export const IssueManager: React.FC<Props> = ({
           </p>
         </div>
 
-        <button
-          onClick={onOpenSyncModal}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md shadow-indigo-600/20 transition shrink-0"
-        >
-          <Zap className="w-4 h-4 fill-current" />
-          <span>Export All to Linear</span>
-        </button>
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <button
+            onClick={handleCopyGitHubIssues}
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs shadow-xs transition"
+            title="Copy all stories formatted for GitHub Issues Markdown"
+          >
+            {copiedGitHub ? (
+              <>
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span className="text-emerald-700">Copied GitHub Issues!</span>
+              </>
+            ) : (
+              <>
+                <Github className="w-4 h-4 text-slate-600" />
+                <span>Copy GitHub Issues (.md)</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={onOpenSyncModal}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md shadow-indigo-600/20 transition"
+          >
+            <Zap className="w-4 h-4 fill-current" />
+            <span>Export All to Linear</span>
+          </button>
+        </div>
       </div>
 
       {/* Issues Deck */}

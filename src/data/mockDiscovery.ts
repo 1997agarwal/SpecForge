@@ -50,7 +50,7 @@ export interface PrdMetadata {
 }
 
 export interface DiscoveryScenario {
-  id: 'billing' | 'ai-search' | 'checkout';
+  id: string;
   name: string;
   shortLabel: string;
   badge: string;
