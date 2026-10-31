@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Zap, CheckCircle2, Loader2, ExternalLink, ShieldCheck } from 'lucide-react';
+import { X, Zap, CheckCircle2, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
 import { Issue } from '../data/mockDiscovery';
 
 interface Props {
@@ -15,40 +15,49 @@ export const LinearSyncModal: React.FC<Props> = ({
   issues,
   epicTitle = 'Billing Reconciliation & Resilient Webhook Ingestion'
 }) => {
-  const [apiKey, setApiKey] = useState('demo-token');
+  const [apiKey, setApiKey] = useState('');
   const [teamId, setTeamId] = useState('ENG');
   const [syncing, setSyncing] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; epicUrl: string; syncedCount: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ success: true; epicUrl: string; syncedCount: number; issueUrls: string[] } | null>(null);
 
   if (!isOpen) return null;
 
   const handleSync = async () => {
     setSyncing(true);
+    setError(null);
     try {
       const res = await fetch('/api/sync/linear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          apiKey,
-          teamId,
+          apiKey: apiKey.trim() || undefined,
+          teamId: teamId.trim(),
           epicTitle,
           issues
         })
       });
 
-      if (!res.ok) {
-        throw new Error('Sync failed');
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
       }
 
-      const data = await res.json();
-      setResult(data);
-    } catch {
-      // High-fidelity fallback for offline demo
+      if (!res.ok || !data || data.success !== true || !data.epicUrl) {
+        setError(data?.error || `Sync failed (HTTP ${res.status}).`);
+        return;
+      }
+
       setResult({
         success: true,
-        syncedCount: issues.length,
-        epicUrl: 'https://linear.app/eng/project/specforge-billing-recon-epic'
+        epicUrl: data.epicUrl,
+        syncedCount: data.syncedCount ?? (data.issueUrls?.length ?? 0),
+        issueUrls: Array.isArray(data.issueUrls) ? data.issueUrls : []
       });
+    } catch {
+      setError('Could not reach the SpecForge server. Start it with `npm run dev` and try again.');
     } finally {
       setSyncing(false);
     }
@@ -56,6 +65,7 @@ export const LinearSyncModal: React.FC<Props> = ({
 
   const handleClose = () => {
     setResult(null);
+    setError(null);
     onClose();
   };
 
@@ -84,11 +94,18 @@ export const LinearSyncModal: React.FC<Props> = ({
             <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-3">
               <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                <span>Successfully Synced {result.syncedCount} Issues to Linear!</span>
+                <span>Linear confirmed {result.syncedCount} issues were created</span>
               </div>
               <p className="text-slate-600 leading-relaxed">
-                Created Epic <strong className="text-slate-900">[SpecForge] {epicTitle}</strong> with {result.syncedCount} child engineering stories, story points, and timestamped customer citations.
+                Created project <strong className="text-slate-900">{epicTitle}</strong> with {result.syncedCount} stories, including Gherkin acceptance criteria and customer citations.
               </p>
+              {result.issueUrls.length > 0 && (
+                <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-0.5">
+                  {result.issueUrls.map((url) => (
+                    <li key={url}><a href={url} target="_blank" rel="noreferrer" className="underline break-all">{url}</a></li>
+                  ))}
+                </ul>
+              )}
               <div className="pt-2">
                 <a
                   href={result.epicUrl}
@@ -96,7 +113,7 @@ export const LinearSyncModal: React.FC<Props> = ({
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-emerald-300 text-emerald-800 font-bold hover:bg-emerald-100/50 shadow-sm transition"
                 >
-                  <span>Open Epic in Linear Workspace</span>
+                  <span>Open Project in Linear</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -110,9 +127,12 @@ export const LinearSyncModal: React.FC<Props> = ({
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="lin_api_..."
+                  autoComplete="off"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs"
                 />
-                <span className="text-[11px] text-slate-400 mt-1 block">Leave default for interactive simulated export.</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">
+                  Linear sync needs a key. Paste a personal API key here, or set <code>LINEAR_API_KEY</code> on the server. Nothing is sent to Linear without one.
+                </span>
               </div>
 
               <div>
@@ -125,6 +145,13 @@ export const LinearSyncModal: React.FC<Props> = ({
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs font-mono"
                 />
               </div>
+
+              {error && (
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex gap-2 items-start">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+                  <span className="leading-relaxed">{error}</span>
+                </div>
+              )}
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 space-y-1.5">
                 <span className="font-bold text-slate-900 block text-xs">What will be created:</span>
@@ -153,7 +180,7 @@ export const LinearSyncModal: React.FC<Props> = ({
               className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
             >
               {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5 fill-current" />}
-              <span>{syncing ? 'Pushing to Linear...' : 'Confirm Sync to Linear'}</span>
+              <span>{syncing ? 'Pushing to Linear...' : error ? 'Retry Sync to Linear' : 'Confirm Sync to Linear'}</span>
             </button>
           )}
         </div>

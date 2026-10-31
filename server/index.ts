@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db/database.ts';
 import { parseTranscript } from './services/transcription.ts';
-import { syncToLinear } from './services/linearSync.ts';
+import { syncToLinear, LinearSyncError } from './services/linearSync.ts';
 import { INSIGHT_EXTRACTOR_SYSTEM_PROMPT } from './agents/insightExtractor.ts';
 import { ARCHITECT_AGENT_SYSTEM_PROMPT } from './agents/architectAgent.ts';
 import { STORY_GENERATOR_SYSTEM_PROMPT } from './agents/storyGenerator.ts';
@@ -231,11 +231,12 @@ app.get('/api/prd/:projectId', (req: any, res: any) => {
 
 app.post('/api/sync/linear', async (req: any, res: any) => {
   try {
-    const { apiKey, teamId, epicTitle, issues } = req.body;
+    const { apiKey, teamId, epicTitle, issues } = req.body ?? {};
     const result = await syncToLinear({ apiKey, teamId, epicTitle, issues });
     res.json(result);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    const status = err instanceof LinearSyncError ? err.status : 500;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 
