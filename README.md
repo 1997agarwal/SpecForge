@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://1997agarwal.github.io/SpecForge"><img src="https://img.shields.io/badge/Live_Demo-Interactive_Studio-4F46E5.svg?logo=googlechrome&logoColor=white" alt="Live Demo"></a>
   <a href="#license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License MIT"></a>
-  <a href="#architecture"><img src="https://img.shields.io/badge/Architecture-3--Stage_Agentic-orange.svg" alt="3-Stage Agentic"></a>
+  <a href="#architecture"><img src="https://img.shields.io/badge/Architecture-3--Stage_Pipeline-orange.svg" alt="3-Stage Pipeline"></a>
   <a href="#linear-sync"><img src="https://img.shields.io/badge/Linear-Sync_Ready-5E6AD2.svg?logo=linear&logoColor=white" alt="Linear Sync"></a>
   <a href="#github-issues"><img src="https://img.shields.io/badge/GitHub_Issues-Supported-181717.svg?logo=github&logoColor=white" alt="GitHub Issues"></a>
   <a href="#typescript"><img src="https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript"></a>
@@ -20,13 +20,14 @@
 
 Product Managers and technical founders spend **8–12 hours a week** transcribing user interviews, manually extracting pain points, cross-referencing timestamps, and writing PRDs and Linear tickets.
 
-Generic LLMs produce vague summaries (*"The customer wants speed"*). **SpecForge** is an open-source autonomous discovery-to-spec engine that runs a **3-stage agentic pipeline** to produce:
-1. **Verbatim Timestamped Customer Insights & JTBD Matrix**
-2. **Master Technical PRD** (Data Models, API Contracts, Edge Cases, SLAs)
-3. **Executable User Stories** (Gherkin `Given-When-Then` format with story points)
-4. **1-Click Sync to Linear & GitHub Issues** with citation backlinks directly to the user's voice
-5. **1-Click Export Actions in PRD Studio** (Download PRD `.md` with Mermaid diagrams & Copy Jira/Notion User Stories)
-6. **3-Scenario Discovery Switcher** (Instant testing of B2B Billing, AI Search Latency & Rate Limits, and Mobile Checkout Drop-off)
+Generic LLMs produce vague summaries (*"The customer wants speed"*). **SpecForge** is an open-source discovery-to-spec tool. Its 3-stage pipeline is currently **template-based analysis**: no AI model is called yet (see [Status](#-status)). It produces:
+1. **Timestamped Customer Insights & JTBD Matrix** (template-based; the bundled scenarios are sample data)
+2. **Master Technical PRD** (Markdown with a Mermaid sequence diagram; template output, not model-written)
+3. **User Stories** in Gherkin `Given-When-Then` format with story points
+4. **One-way Linear push**: creates a Linear project and one issue per story using your Linear API key. GitHub Issues: Markdown copied to the clipboard, no API sync.
+5. **Export actions in PRD Studio**: download the PRD `.md`, copy Jira/Notion-style stories and GitHub Issues Markdown
+6. **3-Scenario Discovery Switcher** (B2B Billing, AI Search Latency & Rate Limits, and Mobile Checkout Drop-off), backed by bundled sample data
+7. **CLI `scan`**: reads a WebVTT/SRT/plain-text transcript and prints statistics and keyword-matched candidate signals derived from that file. No model is called.
 
 ---
 
@@ -37,26 +38,28 @@ Generic LLMs produce vague summaries (*"The customer wants speed"*). **SpecForge
                                             │
                                             ▼
                      ┌──────────────────────────────────────────┐
-                     │    SpecForge Multi-Agent Pipeline        │
+                     │    SpecForge 3-Stage Pipeline (template-based)  │
                      └──────────────────────────────────────────┘
                                             │
      ┌──────────────────────────────────────┼──────────────────────────────────────┐
      │                                      │                                      │
      ▼                                      ▼                                      ▼
-[ Agent 1: Insight Extractor ]    [ Agent 2: Systems Architect ]    [ Agent 3: Story & QA Agent ]
- - Speaker diarization             - Data models & ERDs              - Gherkin test cases
- - JTBD & pain urgency             - Edge cases & latency budgets    - Story point estimation
- - Verbatim timestamp citations    - API contracts & endpoints       - Linear / GitHub payload
+[ Stage 1: Insight Template ]     [ Stage 2: PRD Template ]         [ Stage 3: Story Template ]
+ - Turn parsing                    - Data models & ERDs              - Gherkin scenarios
+ - JTBD & urgency fields           - Edge cases & SLAs               - Story point fields
+ - Timestamp citations             - API contracts & endpoints       - Linear / GitHub payload
      │                                      │                                      │
      └──────────────────────────────────────┼──────────────────────────────────────┘
                                             │
                                             ▼
                          [ SpecForge Dual-Pane Studio ]
-              (Transcript with Citation Pins ◄──► Live PRD Editor)
+              (Transcript with Citation Pins ◄──► PRD Viewer)
                                             │
                                             ▼
-                     [ 1-Click Sync: Linear API / GitHub Issues ]
+                     [ Linear push (API key required) / Markdown copy ]
 ```
+
+The diagram shows the intended design. Today the stages fill templates; the model-backed agents described in `server/agents/` are not called.
 
 ---
 
@@ -106,24 +109,49 @@ npm run dev
 ```
 Open **`http://localhost:5173`** to access the Discovery Studio.
 
-### 2. Run via Headless CLI
+### 2. Run the Headless CLI
 ```bash
-# Run discovery analysis directly from your terminal
-npx specforge scan ./interviews/customer_call_01.vtt \
-  --output ./docs/PRD.md \
-  --sync linear \
-  --team ENG
+# Scan a transcript and print statistics derived from that file
+node bin/cli.mjs scan ./tests/fixtures/sample-interview.vtt --output ./scan.md
 ```
+
+Example output (from `tests/fixtures/sample-interview.vtt`):
+```
+Transcript: sample-interview.vtt
+Turns: 5 | Span: 02:40 | Speakers: Marcus (3), Sarah (2)
+
+Candidate signals (keyword match on this file; no model involved): 4
+  [00:15] Sarah (matched "fails"): "Thanks for jumping on, Marcus. Can you walk me through what happens when your reconciliation fails?"
+  [00:32] Marcus (matched "waste"): "Every single Monday we waste 2 hours manually downloading CSVs from Stripe because the webhooks time out silently."
+  ...
+```
+
+The CLI does not call a model, and its signals are keyword matches to review by hand. `npx specforge` is not published yet, and the `--sync`/`--team` flags do not exist. Audio and video input is rejected; transcribe first.
 
 ---
 
-## 🧠 The 3-Stage Agentic Pipeline
+## 📋 Status
+
+| Area | What the code does today |
+|---|---|
+| Studio UI, scenarios, PRD and story export | Works. Content comes from bundled sample data or template fill-in. |
+| Insights, PRD, and stories | Template-based. No AI model is called. |
+| Linear export | One-way push. Needs a Linear API key (form field or `LINEAR_API_KEY`). Shows an error if the key is missing or Linear rejects a request. Shows success only with the URLs Linear returns. Not tested against a live workspace in CI. |
+| GitHub Issues | Markdown copied to the clipboard. No API sync. |
+| CLI `scan` | Works on WebVTT/SRT/plain-text transcripts. Deterministic. |
+| Not implemented | Model-backed agents, audio/video transcription (Whisper, Deepgram), speaker diarization, Linear pull or bi-directional sync, waveform player, live Mermaid viewer, npm-published `npx specforge`. |
+
+---
+
+## 🧠 The 3-Stage Pipeline (design)
+
+The table below describes the intended agent roles. The prompts are in `server/agents/` and are not connected to a model yet.
 
 | Agent | Mission | Output Format |
 |---|---|---|
-| **Agent 1: Insight Extractor** | Parses raw conversation turns, identifies speaker intent, extracts JTBD, and anchors every pain point to an exact `[mm:ss]` timestamp. | Structured JSON with urgency scores (1–5) and verbatim quotes. |
-| **Agent 2: Systems Architect** | Translates customer problems into technical system requirements, relational database schemas (SQLite/Postgres), and API contracts. | Master Technical PRD in Markdown with Mermaid.js ER diagrams. |
-| **Agent 3: Story Generator** | Converts specifications into atomic engineering tickets formatted in Gherkin BDD (`Given-When-Then`) syntax. | Linear and GitHub-ready issue payloads with citation backlinks. |
+| **Agent 1: Insight Extractor** (planned) | Parses raw conversation turns, identifies speaker intent, extracts JTBD, and anchors every pain point to an exact `[mm:ss]` timestamp. | Structured JSON with urgency scores (1–5) and verbatim quotes. |
+| **Agent 2: Systems Architect** (planned) | Translates customer problems into technical system requirements, relational database schemas (SQLite/Postgres), and API contracts. | Master Technical PRD in Markdown with Mermaid.js ER diagrams. |
+| **Agent 3: Story Generator** (planned) | Converts specifications into atomic engineering tickets formatted in Gherkin BDD (`Given-When-Then`) syntax. | Linear and GitHub-ready issue payloads with citation backlinks. |
 
 ---
 
@@ -138,7 +166,7 @@ SpecForge/
 ├── LICENSE                   # MIT License
 ├── README.md                 # Master documentation
 ├── bin/
-│   └── cli.mjs               # Executable binary for npx specforge
+│   └── cli.mjs               # `scan` command (run with node; npx not published)
 ├── server/
 │   ├── index.ts              # Node.js API server (Port 4100)
 │   ├── agents/
@@ -166,10 +194,12 @@ SpecForge/
 
 ## 🔗 Citation Backlink Example
 
-Every Linear issue generated by SpecForge preserves the link back to the customer's exact voice:
+Each exported Linear issue keeps the customer's exact words and timestamp:
 
 > **Customer Voice:** *"We waste 2 hours every Monday manually exporting CSVs to Zapier because the webhooks time out."*  
-> — *[Interview 04, John Doe @ 14:22](https://specforge.app/project/csv-sync#t=862)*
+> — *Interview 04, John Doe @ 14:22*
+
+The Linear issue description carries the quote and timestamp in this form. The example is illustrative; the export does not link to an external host.
 
 ---
 

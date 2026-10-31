@@ -122,7 +122,7 @@ export const App: React.FC = () => {
               From 45-Minute User Calls to Executable Specs in 60 Seconds.
             </h2>
             <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
-              Eliminate manual synthesis. SpecForge runs a 3-stage agentic pipeline that anchors every technical requirement and Linear issue to verbatim customer audio citations.
+              Eliminate manual synthesis. SpecForge runs a template-based 3-stage analysis that anchors every technical requirement and Linear issue to verbatim customer audio citations.
             </p>
           </div>
 
