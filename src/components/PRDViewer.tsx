@@ -88,7 +88,7 @@ export const PRDViewer: React.FC<Props> = ({
                 Status: Approved for Sprint
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
-                Version 1.0 (template output)
+                Version 1.0 (Agent 2 Output)
               </span>
             </div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">

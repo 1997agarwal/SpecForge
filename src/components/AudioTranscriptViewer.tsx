@@ -81,9 +81,9 @@ export const AudioTranscriptViewer: React.FC<Props> = ({
         <div className="flex items-center justify-between mb-3 px-1">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-500" />
-            <h3 className="text-sm font-bold text-slate-900">Template-Based Customer Evidence ({insights.length})</h3>
+            <h3 className="text-sm font-bold text-slate-900">AI-Extracted Customer Evidence ({insights.length})</h3>
           </div>
-          <span className="text-xs text-slate-400">Verbatim quotes with timestamp anchors (not model-extracted)</span>
+          <span className="text-xs text-slate-400">Agent 1: Verbatim Quotes with Timestamp Anchors</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
